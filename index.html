@@ -21,6 +21,7 @@
       background-color: #fff;
       text-align: center;
       box-sizing: border-box;
+      position: relative;
     }
     .judul {
       font-size: 18px;
@@ -65,6 +66,39 @@
       margin-bottom: 10px;
       display: none;
     }
+
+    /* Spinner dan overlay */
+    .overlay {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 20px;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 10;
+    }
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .loading-text {
+      font-size: 14px;
+      color: #2c3e50;
+    }
   </style>
 </head>
 <body>
@@ -76,23 +110,45 @@
       <div id="peringatan" class="warning">NIS tidak terdaftar!</div>
       <input type="submit" value="Login" class="tombol">
     </form>
+
+    <!-- Spinner overlay -->
+    <div class="overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="loading-text">Mohon tunggu, mengecek NIS...</div>
+    </div>
   </div>
 
   <script>
-    const allowedNIS = ["2416196","2416197","2416198","2416199","2416200","2416201","2416202","2416203","2416204","2416205","2416206","2416207","2416208","2416209","2416210","2416211","2416212","2416213","2416214","2416215","2416216","2416217","2416218","2416219","2416220","2416221","2416222","2416223","2416224","2416225","2416226","2416227","2416228","2416229","2416230","2416408","2416231","2416232","2416233","2416234","2416235","2416236","2416237","2416238","2416239","2416240","2416241","2416242","2416243","2416244","2416245","2416246","2416247","2416248","2416249","2416250","2416251","2416252","2416253","2416254","2416255","2416256","2416257","2416258","2416259","2416260","2416261","2416262","2416263","2416264","2416265","2315977"
+    const allowedNIS = ["2315757","2315758","2315759","2315760","2315761","2315762","2315971","2315763","2315764","2315765","2315766","2315767","2315768","2315769","2315770","2315771","2315772","2315773","2315774","2315775","2315776","2315777","2315778","2315779","2315780","2315781","2315782","2315783","2315784","2315785","2315972","2315786","2315787","2315788","2315789","2315790","2315791","2315792","2315793","2315794","2315795","2315796","2315797","2315798","2315799","2315800","2315801","2315802","2315803","2315804","2315805","2315806","2315807","2315808","2315809","2315811","2315812","2315813","2215308","2315814","2315815","2215346","2315816","2315817","2315818","2315819","2315820","2315821","2315822","2315823","2315824"
 ];
-    const redirectURL = "https://sites.google.com/guru.smk.belajar.id/smkn-26-jakarta-kurikulum/sumatif-akhir-semester-genap/pelaksaan-sas/kelas-x/titl";
+
+    const redirectURL = "https://sites.google.com/guru.smk.belajar.id/smkn-26-jakarta-kurikulum/sumatif-akhir-semester-genap/pelaksanaan-pas/kelas-xi/tflm";
+    const webAppURL = "https://script.google.com/macros/s/AKfycbxcd156ueEZKynf2XqbYrJ5b5Rf4hJ5Te7fPPykAUy8hsMv1YB8GVhCtSn2C_PtDsPr/exec";
 
     const form = document.getElementById("login-form");
     const nisInput = form.elements["nis"];
     const warning  = document.getElementById("peringatan");
+    const overlay  = document.getElementById("loadingOverlay");
 
     form.addEventListener("submit", function(e) {
       e.preventDefault();
       const nis = nisInput.value.trim();
 
       if (allowedNIS.includes(nis)) {
-        window.location.href = redirectURL;
+        overlay.style.display = "flex"; // Tampilkan loading spinner
+
+        // Kirim ke Google Sheets via Web App
+        fetch(webAppURL, {
+          method: "POST",
+          body: new URLSearchParams({ nis: nis }),
+        }).then(response => {
+          // Setelah tercatat, lakukan redirect
+          window.location.href = redirectURL;
+        }).catch(() => {
+          alert("Terjadi kesalahan saat mencatat ke Google Sheet.");
+          overlay.style.display = "none";
+        });
+
       } else {
         warning.style.display = "block";
       }
@@ -106,4 +162,5 @@
   </script>
 </body>
 </html>
+
 
